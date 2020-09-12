@@ -1,0 +1,57 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('ContinousDownload_Master')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git 'https://github.com/intelliqittrainings/maven.git'
+                        //mail bcc: '', body: 'Success : Continuous Download Success', cc: '', from: '', replyTo: '', subject: 'Success : Continuous Download Success', to: 'saurabh.b0902@gmail.com'
+                    }
+                    catch (Exception e1)
+                    {
+                        mail bcc: '', body: 'Failure : Continuous Download', cc: '', from: '', replyTo: '', subject: 'Failure : Continuous Download', to: 'saurabh.b0902@gmail.com'
+                        exit(1)
+                    }
+                }
+            }
+        }
+        stage('ContinousBuild_Master')
+        {
+            steps
+            {
+                sh label: '', script: 'mvn package'
+            }
+        }
+        stage('ContinousDeployment_Master')
+        {
+            steps
+            {
+                sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.1.157:/var/lib/tomcat8/webapps/newtestapp.war'
+            }
+        }
+        stage('ContinousTesting_Master')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                sh label: '', script: 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline/testing.jar'
+            }
+        }
+        stage('ContinousDelivery_Master')
+        {
+            steps
+            {
+                input submitter: 'saurabh bhardwaj', message: 'Waiting for Approval!'
+                sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.12.2:/var/lib/tomcat8/webapps/newprodapp.war'
+                 
+            }
+        }
+    }
+}
