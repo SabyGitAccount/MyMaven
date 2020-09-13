@@ -3,7 +3,7 @@ pipeline
     agent any
     stages
     {
-        stage('ContinousDownload_Master')
+        stage('ContinousDownload_Loan')
         {
             steps
             {
@@ -22,35 +22,11 @@ pipeline
                 }
             }
         }
-        stage('ContinousBuild_Master')
+        stage('ContinousBuild_Loans')
         {
             steps
             {
                 sh label: '', script: 'mvn package'
-            }
-        }
-        stage('ContinousDeployment_Master')
-        {
-            steps
-            {
-                sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.1.157:/var/lib/tomcat8/webapps/newtestapp.war'
-            }
-        }
-        stage('ContinousTesting_Master')
-        {
-            steps
-            {
-                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-                sh label: '', script: 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline/testing.jar'
-            }
-        }
-        stage('ContinousDelivery_Master')
-        {
-            steps
-            {
-                input submitter: 'saurabh bhardwaj', message: 'Waiting for Approval!'
-                sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.12.2:/var/lib/tomcat8/webapps/newprodapp.war'
-                 
             }
         }
     }
